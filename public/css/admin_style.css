@@ -1,0 +1,605 @@
+/* ===================================================================
+   ADMIN STYLE - PHIÊN BẢN HOÀN CHỈNH VÀ TỐI ƯU
+   =================================================================== */
+
+/* === 1. THIẾT LẬP CHUNG & BỐ CỤC === */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+body {
+   margin: 0;
+    font-family: 'Roboto', Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #495057;
+}
+
+.admin-container {
+    display: flex;
+}
+
+.main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.content {
+    padding: 30px;
+    flex-grow: 1;
+}
+
+/* === 2. HEADER & FOOTER === */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background-color: #FF9900;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header-right a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+.footer {
+    padding: 15px 30px;
+    background-color: #FF9900;
+    color: white;
+    text-align: center;
+}
+
+/* === 3. SIDEBAR MENU (ĐÃ GỘP VÀ TỐI ƯU) === */
+.sidebar {
+    width: 250px;
+    background-color: #343a40;
+    color: white;
+    min-height: 100vh;
+}
+
+.sidebar-header {
+    padding: 20px;
+    text-align: center;
+    background-color: #212529;
+}
+
+.sidebar-header .logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #FF9900;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Các mục menu đơn lẻ */
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: #aeb2b7;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+    background-color: #495057;
+    color: white;
+}
+
+.nav-item.active {
+    background-color: #FF9900;
+    color: white;
+}
+
+/* Menu cha (Accordion) */
+.nav-group {
+    margin-bottom: 5px;
+}
+
+.nav-group-title-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: bold;
+    color: #aeb2b7;
+    transition: all 0.2s ease;
+}
+
+.nav-group-title-button:hover {
+    color: white;
+}
+
+/* Khi một nhóm active/open, làm sáng tiêu đề cha */
+.nav-group.open .nav-group-title-button,
+.nav-group.active .nav-group-title-button {
+    color: #ffffff;
+}
+
+.arrow-icon {
+    transition: transform 0.3s ease;
+}
+
+/* Menu con */
+.nav-submenu {
+    max-height: 0;
+    overflow: hidden;
+    background-color: #2c3136;
+    transition: max-height 0.3s ease-in-out;
+}
+
+.nav-group.open .nav-submenu {
+    max-height: 200px;
+}
+
+.nav-group.open .arrow-icon {
+    transform: rotate(180deg);
+}
+
+.nav-submenu-item {
+    display: block !important;
+    padding: 12px 20px 12px 45px !important;
+    font-size: 14px !important;
+    font-weight: normal !important;
+    color: #aeb2b7;
+}
+
+.nav-submenu-item.active {
+    background-color: #FF9900 !important;
+    color: white !important;
+}
+
+/* === 5. BẢNG DỮ LIỆU (PHIÊN BẢN CUỐI CÙNG, ĐÃ SỬA LỖI LỆCH HÀNG) === */
+.table-container {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th,
+table td {
+    padding: 15px;
+    border-bottom: 1px solid #e9ecef;
+    text-align: left;
+    /* QUAN TRỌNG NHẤT: Ép buộc mọi thứ phải được căn giữa theo chiều dọc */
+    vertical-align: middle !important;
+}
+
+table th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    border-bottom-width: 2px;
+}
+
+/* SỬA LỖI MẤT GẠCH NGANG: Xóa bỏ quy tắc "last-child" */
+/* Bây giờ tất cả các dòng đều sẽ có gạch ngang */
+
+table tbody tr:hover {
+    background-color: #f1f3f5;
+}
+
+.text-right {
+    text-align: right;
+}
+
+/* Cột hành động */
+.action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.action-icon {
+    font-size: 18px;
+    text-decoration: none;
+    transition: transform 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-icon:hover {
+    transform: scale(1.2);
+}
+
+.view-icon { color: #17a2b8; }
+.edit-icon, .fa-user-lock { color: #ffc107; }
+
+.action-buttons .delete-icon {
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    color: #dc3545;
+    font-size: 16px;
+    transition: all 0.2s;
+}
+
+.action-buttons .delete-icon:hover {
+    transform: scale(1.2);
+    color: #a71d2a;
+}
+
+/* Tags (Vai trò, Trạng thái) */
+.role-tag, .status-tag, .order-status {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    color: white;
+    text-transform: capitalize;
+}
+
+.role-admin, .status-cancelled { background-color: #dc3545; }
+.role-customer, .status-active, .status-completed { background-color: #28a745; }
+.role-staff { background-color: #17a2b8; }
+.status-inactive, .status-pending { background-color: #ffc107; color: #212529;}
+.status-confirmed { background-color: #007bff; }
+.status-shipping { background-color: #fd7e14; }
+
+/* === 5. FORM & CÁC THÀNH PHẦN KHÁC === */
+
+/* Khung chứa các nút bấm */
+.form-actions {
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Nút bấm "+ Thêm..." ở đầu bảng */
+.add-new-btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+/* Định dạng CHUNG cho TẤT CẢ các nút trong form (Cập nhật, Hủy) */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    transition: all 0.2s ease-in-out;
+    min-width: 100px;
+
+    /* SỬA LỖI NẰM Ở ĐÂY: Ép buộc tất cả các nút phải tính toán kích thước theo cùng một cách */
+    box-sizing: border-box;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+/* Nút chính (Lưu, Cập nhật...) */
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Nút phụ (Hủy) */
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* Form chung */
+.form-container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+.form-actions {
+    margin-top: 30px;
+}
+
+/* Ô tìm kiếm */
+.search-container {
+    position: relative;
+    display: flex;
+}
+.search-container input[type="text"] {
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 8px 40px 8px 15px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+.search-container input[type="text"]:focus {
+    border-color: #FF9900;
+}
+.search-container .search-button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    border: none;
+    background: transparent;
+    padding: 0 15px;
+    cursor: pointer;
+    color: #aaa;
+    font-size: 16px;
+    transition: color 0.2s ease-in-out;
+}
+.search-container .search-button:hover {
+    color: #FF9900;
+}
+
+/* Phân trang */
+.pagination-container {
+    margin-top: 20px;
+}
+.pagination {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+}
+.pagination li { margin: 0 5px; }
+.pagination li a, .pagination li span {
+    color: #FF9900;
+    padding: 8px 15px;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+.pagination li.active span {
+    background-color: #FF9900;
+    color: white;
+    border-color: #FF9900;
+}
+.pagination li a:hover {
+    background-color: #f5f5f5;
+}
+.pagination li.disabled span {
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Thông báo (Alert) */
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 5px;
+}
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    margin-top: 5px;
+    font-size: 12px;
+}
+/* Thêm vào cuối file public/css/admin_style.css */
+
+/* === NÂNG CẤP GIAO DIỆN FORM PHÂN QUYỀN === */
+.permission-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+}
+
+.permission-item {
+    display: flex; /* Dùng Flexbox để căn chỉnh */
+    align-items: center; /* Căn giữa checkbox và chữ theo chiều dọc */
+    gap: 10px; /* Tạo khoảng cách giữa checkbox và chữ */
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.permission-item label {
+    font-weight: normal; /* Chữ không cần in đậm */
+    cursor: pointer; /* Biến chữ thành có thể click */
+}
+
+.permission-item input[type="checkbox"] {
+    width: 18px; /* Làm checkbox to hơn */
+    height: 18px; /* Làm checkbox to hơn */
+    cursor: pointer;
+}
+
+/* === GIAO DIỆN PHÂN QUYỀN (PHIÊN BẢN HOÀN CHỈNH) === */
+
+/* Khung chứa toàn bộ các nhóm */
+.permission-groups-container {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+/* Khung chứa của một nhóm (ví dụ: Product) */
+.permission-group {
+    margin-bottom: 20px;
+}
+.permission-group:last-child {
+    margin-bottom: 0;
+}
+
+/* Định dạng cho tiêu đề mỗi nhóm (ví dụ: "Quản lý Product") */
+.permission-group-title {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    border-bottom: 2px solid #FF9900;
+    padding-bottom: 10px;
+}
+.permission-group-title label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.permission-group-title input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+}
+
+/* Lưới chứa các quyền con */
+.permission-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+    padding-left: 10px;
+}
+
+/* Định dạng cho một mục quyền con (ví dụ: "Xem danh sách sản phẩm") */
+.permission-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+}
+.permission-item label {
+    font-weight: normal;
+    cursor: pointer;
+}
+.permission-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* SỬA LỖI LỆCH HÀNG NẰM Ở ĐÂY */
+.master-checkbox-container {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 15px;
+    /* Dùng Flexbox để xếp checkbox và chữ trên cùng một hàng */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.master-checkbox-container label {
+    cursor: pointer;
+    font-size: 16px;
+}
+.master-checkbox-container input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+}
+/* === MÀU SẮC CHO CÁC THẺ VAI TRÒ === */
+
+/* Màu mặc định */
+.role-tag {
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Super Admin - Màu đỏ quyền lực */
+.role-tag.role-super-admin {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+/* Biên tập viên - Màu xanh dương */
+.role-tag.role-bien-tap-vien {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+/* Customer - Màu xanh lá cây */
+.role-tag.role-customer {
+    color: #fff;
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+/* Staff - Màu xám */
+.role-tag.role-staff {
+    color: #212529;
+    background-color: #e2e3e5;
+    border-color: #d6d8db;
+}
+
+/* Thêm các vai trò khác nếu bạn muốn */
+.role-tag.role-quan-ly-san-pham {
+    color: #fff;
+    background-color: #fd7e14; /* Màu cam */
+    border-color: #fd7e14;
+}
+
+.role-tag.role-test {
+    color: #fff;
+    background-color: #6f42c1; /* Màu tím */
+    border-color: #6f42c1;
+}
