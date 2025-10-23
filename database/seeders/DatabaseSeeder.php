@@ -16,16 +16,16 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         $this->call([
-        UserSeeder::class,
-        BrandSeeder::class,
-        CategorySeeder::class,
-        ColorSeeder::class,
-        SizeSeeder::class,
-        ProductSeeder::class,
-        ProductVariantSeeder::class,
-        DeliveryProviderSeeder::class,
-        OrderSeeder::class, // sẽ thêm sau
-        PaymentSeeder::class, // sẽ thêm sau
-    ]);
+            UserSeeder::class,              // tạo user trước
+            BrandSeeder::class,             // cần cho Product
+            CategorySeeder::class,          // cần cho Product
+            ColorSeeder::class,             // cần cho ProductVariant
+            SizeSeeder::class,              // cần cho ProductVariant
+            ProductSeeder::class,           // tạo Product trước ProductVariant
+            ProductVariantSeeder::class,    // tạo variants trước Order
+            DeliveryProviderSeeder::class,  // cần cho Order
+            OrderSeeder::class,             // tạo đơn hàng
+            PaymentSeeder::class,           // tạo thanh toán sau khi có đơn
+        ]);
     }
 }

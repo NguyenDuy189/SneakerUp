@@ -20,6 +20,7 @@ class User extends Authenticatable
         'phone',
         'role',
         'status',
+        'points', // ✅ thêm trường tích điểm KHÔNG ảnh hưởng tính năng khác
     ];
 
     protected $hidden = [
@@ -32,12 +33,19 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'points' => 'integer', // ✅ ép kiểu int để xử lý chính xác khi cộng/trừ điểm
         ];
     }
 
-    // Liên kết với đơn hàng
+    // 🔹 Liên kết với đơn hàng
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    // 🔹 Liên kết với thanh toán (nếu có)
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 }

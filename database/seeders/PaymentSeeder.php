@@ -2,19 +2,17 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Faker\Factory as Faker;
+
 class PaymentSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        //
         $faker = Faker::create('vi_VN');
+
+        // Lấy tất cả đơn hàng
         $orders = DB::table('orders')->pluck('id');
 
         if ($orders->isEmpty()) {
@@ -23,16 +21,27 @@ class PaymentSeeder extends Seeder
         }
 
         foreach ($orders as $orderId) {
-            $order = DB::table('orders')->where('id', $orderId)->first();
+            // Lấy ngẫu nhiên 1 staff xác nhận (có role admin hoặc staff)
+            $staffId = DB::table('users')
+                ->whereIn('role', ['admin', 'staff'])
+                ->inRandomOrder()
+                ->value('id');
+
             DB::table('payments')->insert([
-                'order_id' => $orderId,
-                'method' => $faker->randomElement(['COD', 'VNPay', 'BankTransfer', 'Momo']),
-                'status' => $faker->randomElement(['pending', 'paid', 'failed']),
-                'transaction_code' => strtoupper('PAY' . substr(md5($orderId . now()), 0, 8)),
-                'amount' => $order->total_price,
-                'paid_at' => $order->status === 'completed' ? now() : null,
-                'created_at' => now(),
+                'order_id'      => $orderId,
+                'confirmed_by'  => $staffId,
+                'method'        => $faker->randomElement(['COD', 'VNPay', 'BankTransfer', 'Momo']),
+                'status'        => $faker->randomElement([
+                    'pending', 'paid', 'failed', 'refunded', 'cancelled', 'chargeback'
+                ]),
+                'amount'        => $faker->numberBetween(50000, 5000000),
+                'currency'      => 'VND',
+                'paid_at'       => $faker->dateTimeBetween('-2 months', 'now'),
+                'created_at'    => now(),
+                'updated_at'    => now(),
             ]);
         }
+
+        echo "✅ Đã tạo thanh toán cho " . count($orders) . " đơn hàng.\n";
     }
 }

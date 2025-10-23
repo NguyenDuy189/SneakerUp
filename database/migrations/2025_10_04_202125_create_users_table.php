@@ -16,11 +16,13 @@ return new class extends Migration
             $table->string('fullname');
             $table->string('username')->unique();
             $table->string('email')->unique();
+            $table->bigInteger('points')->default(0);
             $table->string('password');
             $table->string('phone', 20)->nullable();
             $table->string('avatar')->nullable();
             $table->enum('role', ['admin', 'staff', 'customer'])->default('customer');
             $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
         });

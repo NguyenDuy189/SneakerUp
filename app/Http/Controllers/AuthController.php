@@ -34,7 +34,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $remember)) {
             // Kiểm tra quyền
-            if (Auth::user()->role === 'admin') {
+            if (Auth::user()->role === 'admin'||'staff') {
                 $request->session()->regenerate();
                 return redirect()->route('admin.dashboard')->with('success', 'Đăng nhập thành công!');
             } else {

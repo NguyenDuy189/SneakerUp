@@ -15,11 +15,12 @@ class DeliveryProviderSeeder extends Seeder
     {
         //
         foreach (['Giao Hàng Nhanh', 'Giao Hàng Tiết Kiệm', 'Viettel Post', 'J&T Express', 'Ninja Vam'] as $provider) {
-            DB::table('delivery_providers')->insert([
-                'name' => $provider,
-                'status' => 'active',
-                'created_at' => now(),
-            ]);
-        }
+        DB::table('delivery_providers')->updateOrInsert(
+            ['name' => $provider],
+            ['status' => 'active',
+            'created_at' => now()]
+        );
+    }
+
     }
 }

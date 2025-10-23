@@ -3,199 +3,176 @@
 @section('title', 'Quản lý đơn hàng')
 
 @section('content')
-<style>
-    .order-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1.5rem;
-    }
-    .order-header h1 {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #0d6efd;
-    }
-    .filter-form .form-control, .filter-form .form-select {
-        border-radius: 8px;
-    }
-    .table thead {
-        background-color: #0d6efd;
-        color: #fff;
-    }
-    .table tbody tr:hover {
-        background-color: #f8f9fa;
-        transition: 0.2s;
-    }
-    .badge {
-        text-transform: capitalize;
-        font-size: 0.9rem;
-        padding: 0.5em 0.75em;
-        border-radius: 8px;
-    }
-    .btn {
-        border-radius: 6px;
-    }
-    .action-btns .btn {
-        padding: 4px 10px;
-    }
-    .pagination {
-        justify-content: center;
-    }
-    .search-box {
-        max-width: 250px;
-    }
-
-</style>
-
-<div class="container-fluid py-4">
-
-    {{-- Header --}}
-    <div class="order-header">
-        <h1><i class="bi bi-box-seam"></i> Quản lý đơn hàng</h1>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold text-dark">
+            <i class="bi bi-bag-check"></i> Quản lý đơn hàng
+        </h2>
         <div>
-            <a href="{{ route('admin.orders.export.csv') }}" class="btn btn-outline-secondary me-2">
-                <i class="bi bi-filetype-csv"></i> CSV
+            <a href="{{ route('admin.orders.export.csv') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-filetype-csv"></i> Xuất CSV
             </a>
-            <a href="{{ route('admin.orders.export.excel') }}" class="btn btn-outline-success">
-                <i class="bi bi-file-earmark-excel"></i> Excel
+            <a href="{{ route('admin.orders.export.excel') }}" class="btn btn-outline-success btn-sm">
+                <i class="bi bi-file-earmark-excel"></i> Xuất Excel
             </a>
         </div>
     </div>
 
-    {{-- Bộ lọc --}}
-    <form method="GET" class="row g-2 align-items-center mb-4 filter-form">
-        <div class="col-auto search-box">
-            <input name="q" value="{{ request('q') }}" class="form-control" placeholder="Tìm mã đơn / tên / SĐT">
+    {{-- Hiển thị thông báo --}}
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-        <div class="col-auto">
+    @elseif (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="bi bi-exclamation-triangle"></i> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    {{-- Bộ lọc --}}
+    <form method="GET" class="row g-2 mb-4">
+        <div class="col-md-3">
+            <input type="text" name="q" value="{{ request('q') }}" class="form-control"
+                placeholder="Tìm mã đơn, tên KH, SĐT...">
+        </div>
+        <div class="col-md-3">
             <select name="status" class="form-select">
                 <option value="">-- Trạng thái --</option>
-                @foreach(['pending','confirmed','shipping','completed','cancelled','failed'] as $s)
-                    <option value="{{ $s }}" @selected(request('status')==$s)>
-                        {{ ucfirst($s) }}
+                @foreach ([
+                    'pending'=>'Chờ xử lý',
+                    'confirmed'=>'Đã xác nhận',
+                    'shipping'=>'Đang giao hàng',
+                    'completed'=>'Hoàn thành',
+                    'cancelled'=>'Đã huỷ',
+                    'failed'=>'Thất bại',
+                    'returned'=>'Trả hàng'
+                ] as $key => $label)
+                    <option value="{{ $key }}" {{ request('status') == $key ? 'selected' : '' }}>
+                        {{ $label }}
                     </option>
                 @endforeach
             </select>
         </div>
-        <div class="col-auto">
-            <button class="btn btn-primary">
-                <i class="bi bi-funnel"></i> Lọc
+        <div class="col-md-3">
+            <select name="payment" class="form-select">
+                <option value="">-- Thanh toán --</option>
+                <option value="cod" {{ request('payment') == 'cod' ? 'selected' : '' }}>COD</option>
+                <option value="banking" {{ request('payment') == 'banking' ? 'selected' : '' }}>Chuyển khoản</option>
+                <option value="momo" {{ request('payment') == 'momo' ? 'selected' : '' }}>Momo</option>
+                <option value="vnpay" {{ request('payment') == 'vnpay' ? 'selected' : '' }}>VNPAY</option>
+            </select>
+        </div>
+        <div class="col-md-3 text-end">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i> Lọc
             </button>
         </div>
     </form>
 
-    {{-- Bảng danh sách --}}
-    <div class="card shadow-sm border-0">
+    {{-- Bảng dữ liệu --}}
+    <div class="card shadow-sm">
         <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0 align-middle">
-                    <thead>
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th>Mã đơn hàng</th>
+                        <th>Khách hàng</th>
+                        <th>Tổng tiền</th>
+                        <th>Thanh toán</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($orders as $order)
                         <tr>
-                            <th>Mã đơn</th>
-                            <th>Khách hàng</th>
-                            <th>Tổng tiền</th>
-                            <th>Thanh toán</th>
-                            <th>Trạng thái</th>
-                            <th>Ngày tạo</th>
-                            <th class="text-center">Hành động</th>
+                            <td class="text-center">{{ $order->id }}</td>
+                            <td class="fw-semibold text-primary">{{ $order->code }}</td>
+                            <td>{{ $order->fullname ?? ($order->user->fullname ?? 'N/A') }}</td>
+                            <td>{{ number_format($order->total_price, 0, ',', '.') }} đ</td>
+                            <td>{{ strtoupper($order->payment_method ?? '---') }}</td>
+                            <td>
+                                <span class="badge bg-{{ $order->status_color }}">
+                                    {{ $order->status_label }}
+                                </span>
+                            </td>
+                            <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
+                            <td class="text-center">
+                                
+                                <a href="{{ route('admin.orders.show', $order->id) }}" 
+                                    class="btn btn-outline-info btn-sm ms-1">
+                                        <i class="bi bi-eye">Chi tiết</i>
+                                </a>
+                                @switch($order->status)
+                                    @case('pending')
+                                        <button class="btn btn-success btn-sm js-ajax-confirm"
+                                            data-id="{{ $order->id }}" data-status="confirmed">
+                                            <i class="bi bi-check2-circle"></i> Xác nhận
+                                        </button>
+                                        @break
+
+                                    @case('confirmed')
+                                        <button class="btn btn-primary btn-sm js-ajax-confirm"
+                                            data-id="{{ $order->id }}" data-status="shipping">
+                                            <i class="bi bi-truck"></i> Giao hàng
+                                        </button>
+                                        @break
+
+                                    @case('shipping')
+                                        <button class="btn btn-success btn-sm js-ajax-confirm"
+                                            data-id="{{ $order->id }}" data-status="completed">
+                                            <i class="bi bi-check2"></i> Hoàn thành
+                                        </button>
+                                        @break
+                                @endswitch
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($orders as $order)
-                            <tr id="order-{{ $order->id }}">
-                                <td class="fw-semibold text-primary">{{ $order->code }}</td>
-                                <td>
-                                    <div>{{ $order->fullname }}</div>
-                                    <small class="text-muted">{{ $order->phone }}</small>
-                                </td>
-                                <td class="fw-bold text-danger">{{ number_format($order->total_price) }} ₫</td>
-                                <td>{{ ucfirst($order->payment_method) }}</td>
-                                <td>
-                                    @php
-                                        $statusColor = [
-                                            'pending' => 'warning',
-                                            'confirmed' => 'info',
-                                            'shipping' => 'primary',
-                                            'completed' => 'success',
-                                            'cancelled' => 'secondary',
-                                            'failed' => 'danger'
-                                        ];
-                                    @endphp
-                                    <span class="badge bg-{{ $statusColor[$order->status] ?? 'secondary' }}">
-                                        {{ ucfirst($order->status) }}
-                                    </span>
-                                </td>
-                                <td>{{ optional($order->created_at)->format('d/m/Y H:i') }}</td>
-                                <td class="text-center action-btns">
-                                    <a href="{{ route('admin.orders.show', $order) }}" class="btn btn-sm btn-outline-info">
-                                        <i class="bi bi-eye"></i> Detail
-                                    </a>
-
-                                    @switch($order->status)
-                                        @case('pending')
-                                            <button class="btn btn-sm btn-success js-ajax-confirm" 
-                                                    data-id="{{ $order->id }}" data-status="confirmed">
-                                                <i class="bi bi-check2-circle"></i> Confirm
-                                            </button>
-                                            @break
-
-                                        @case('confirmed')
-                                            <button class="btn btn-sm btn-primary js-ajax-confirm"
-                                                    data-id="{{ $order->id }}" data-status="shipping">
-                                                <i class="bi bi-truck"></i> Shipping
-                                            </button>
-                                            @break
-
-                                        @case('shipping')
-                                            <button class="btn btn-sm btn-success js-ajax-confirm"
-                                                    data-id="{{ $order->id }}" data-status="completed">
-                                                <i class="bi bi-check2"></i> Complete
-                                            </button>
-                                            @break
-                                    @endswitch
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center text-muted py-4">
-                                    <i class="bi bi-inbox"></i> Không có đơn hàng nào.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                    @empty
+                        <tr>
+                            <td colspan="8" class="text-center py-3 text-muted">
+                                <i class="bi bi-inbox"></i> Không có đơn hàng nào.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
+    </div>
 
-        <div class="card-footer bg-light">
-            {{ $orders->links() }}
-        </div>
+    {{-- Phân trang --}}
+    <div class="mt-3">
+        {{ $orders->links('pagination::bootstrap-5') }}
     </div>
 </div>
 
-{{-- Script cập nhật trạng thái --}}
+{{-- AJAX cập nhật trạng thái --}}
 <script>
-document.addEventListener('DOMContentLoaded', function(){
-    document.querySelectorAll('.js-ajax-confirm').forEach(btn => {
-        btn.addEventListener('click', async function(){
-            const id = this.dataset.id;
-            const status = this.dataset.status;
-            if(!confirm('Xác nhận đổi trạng thái đơn hàng #' + id + ' ?')) return;
-            const url = `/admin/orders/${id}/ajax-update-status`;
-            const token = '{{ csrf_token() }}';
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: {'Content-Type':'application/json','X-CSRF-TOKEN': token},
-                body: JSON.stringify({status})
-            });
-            const data = await res.json();
-            if(data.success){
-                location.reload();
-            } else {
-                alert('Có lỗi: '+(data.message||'Không xác định'));
-            }
-        });
-    });
+document.addEventListener('click', e => {
+    const btn = e.target.closest('.js-ajax-confirm');
+    if (!btn) return;
+    const id = btn.dataset.id;
+    const status = btn.dataset.status;
+
+    if (confirm(`Bạn có chắc muốn chuyển đơn #${id} sang trạng thái ${status}?`)) {
+        fetch(`/admin/orders/${id}/ajax-update-status`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            if (data.success) location.reload();
+        })
+        .catch(err => alert('Lỗi: ' + err.message));
+    }
 });
 </script>
 @endsection

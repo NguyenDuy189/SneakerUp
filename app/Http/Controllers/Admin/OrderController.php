@@ -9,223 +9,272 @@ use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\ProductVariant;
 use App\Models\Payment;
 use App\Models\ActivityLog;
+use App\Models\User;
 use App\Notifications\OrderStatusChanged;
-
 
 class OrderController extends Controller
 {
-    /**
-     * Hiển thị danh sách đơn hàng với tìm kiếm + bộ lọc
-     */
+    // ------------------ DANH SÁCH ------------------
     public function index(Request $request)
     {
-        $query = Order::with(['user', 'payment', 'provider'])->orderBy('created_at', 'desc');
+        $query = Order::with(['user', 'payment', 'provider', 'staff'])
+            ->orderBy('created_at', 'desc');
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->filled('payment')) {
-            $query->where('payment_method', $request->payment);
-        }
-
+        if ($request->filled('status')) $query->where('status', $request->status);
+        if ($request->filled('payment')) $query->where('payment_method', $request->payment);
         if ($request->filled('q')) {
             $q = $request->q;
-            $query->where(function ($q2) use ($q) {
-                $q2->where('code', 'like', "%$q%")
-                    ->orWhere('fullname', 'like', "%$q%")
-                    ->orWhere('phone', 'like', "%$q%");
+            $query->where(function ($query) use ($q) {
+                $query->where('code', 'like', "%$q%")
+                    ->orWhere('placed_name', 'like', "%$q%")
+                    ->orWhere('placed_phone', 'like', "%$q%")
+                    ->orWhere('receiver_name', 'like', "%$q%")
+                    ->orWhere('receiver_phone', 'like', "%$q%")
+                    ->orWhereHas('user', fn($q2) => $q2->where('fullname', 'like', "%$q%"));
             });
         }
 
         $orders = $query->paginate(15)->withQueryString();
-
         return view('admin.orders.index', compact('orders'));
     }
 
-    /**
-     * Xem chi tiết đơn hàng
-     */
-    public function show(Order $order)
+    // ------------------ CHI TIẾT ------------------
+    public function show($id)
     {
-        $order->load(['orderDetails', 'user', 'payment', 'provider']);
+        $order = Order::with(['orderDetails.variant.product', 'payment', 'provider', 'user', 'staff'])
+            ->findOrFail($id);
         return view('admin.orders.show', compact('order'));
     }
 
-    /**
-     * Cập nhật trạng thái đơn hàng (Form)
-     */
+    // ------------------ CẬP NHẬT TRẠNG THÁI ------------------
     public function updateStatus(Request $request, Order $order)
     {
         $request->validate([
-            'status' => 'required|in:pending,confirmed,shipping,completed,cancelled,failed'
+            'status' => 'required|in:pending,confirmed,shipping,completed,cancelled,failed,returned'
         ]);
 
         $old = $order->status;
         $new = $request->status;
 
-        // Quy tắc chuyển trạng thái hợp lệ
         $allowedTransitions = [
             'pending'   => ['confirmed', 'cancelled', 'failed'],
             'confirmed' => ['shipping', 'cancelled'],
-            'shipping'  => ['completed', 'failed'],
+            'shipping'  => ['completed', 'failed', 'returned'],
             'completed' => [],
             'cancelled' => [],
             'failed'    => [],
+            'returned'  => [],
         ];
 
-        // Kiểm tra hợp lệ
         if (!in_array($new, $allowedTransitions[$old] ?? [])) {
-            return back()->with('error', "Không thể chuyển từ trạng thái [$old] sang [$new].");
+            return back()->with('error', "Không thể chuyển từ [$old] sang [$new].");
         }
 
-        DB::transaction(function () use ($order, $old, $new) {
-            $order->update(['status' => $new]);
-
-            // Giảm stock khi xác nhận
-            if ($old !== 'confirmed' && $new === 'confirmed') {
-                foreach ($order->orderDetails as $detail) {
-                    $variant = ProductVariant::find($detail->variant_id);
-                    if ($variant) $variant->decrement('stock', $detail->quantity);
+        try {
+            DB::transaction(function () use ($order, $old, $new) {
+                // ✅ Xác nhận đơn: set staff
+                if ($new === 'confirmed' && !$order->staff_id) {
+                    $order->staff_id = Auth::id();
+                    $order->confirm_by = Auth::user()->fullname ?? Auth::user()->username ?? 'Nhân viên không xác định';
                 }
-            }
 
-            // Gửi thông báo (nếu có)
-            if ($order->user) {
-                $order->user->notify(new OrderStatusChanged($order, $old, $new));
-            }
+                $order->status = $new;
+                $order->save();
 
-            // Log hoạt động
-            if (class_exists(ActivityLog::class)) {
-                ActivityLog::create([
-                    'user_id' => Auth::id() ?? 1,
-                    'action' => 'update_status',
-                    'model_type' => Order::class,
-                    'model_id' => $order->id,
-                    'description' => "Status: $old -> $new",
-                    'ip' => request()->ip(),
-                ]);
-            }
-        });
+                // ✅ Khi xác nhận đơn: trừ kho
+                if ($old === 'pending' && $new === 'confirmed') {
+                    foreach ($order->orderDetails as $detail) {
+                        $variant = ProductVariant::find($detail->variant_id);
+                        if ($variant) $variant->decrement('stock', $detail->quantity);
+                    }
+                }
 
-        return back()->with('success', "Cập nhật trạng thái [$new] thành công.");
-    }
-    /**
-     * Thêm ghi chú vào đơn hàng
-     */
-    public function addNote(Request $request, Order $order)
-    {
-        $request->validate(['note' => 'required|string|max:1000']);
+                // ✅ Khi đơn bị hủy hoặc trả hàng: xử lý thanh toán
+                if (in_array($new, ['cancelled', 'returned']) && $order->payment) {
+                    if ($order->payment->status === 'paid') {
+                        $order->payment->update(['status' => 'refunded']);
+                    }
+                }
 
-        $adminName = Auth::check() ? Auth::user()->username : 'Admin SneakerUp';
-        $order->notes = ($order->notes ? $order->notes . "\n\n" : '') .
-            "[{$adminName} @ " . now() . "] " . $request->note;
-        $order->save();
+                // ✅ Khi đơn trả hàng: trừ điểm thưởng hoặc cộng lại (nếu cần)
+                if ($new === 'returned' && $order->user) {
+                    $points = round($order->total_price / 1000);
+                    $order->user->decrement('points', $points);
+                }
 
-        ActivityLog::create([
-            'user_id' => Auth::id() ?? 1,
-            'action' => 'add_note',
-            'model_type' => Order::class,
-            'model_id' => $order->id,
-            'description' => "Added note",
-            'ip' => request()->ip(),
-        ]);
+                // ✅ Gửi thông báo
+                if ($order->user) {
+                    $order->user->notify(new OrderStatusChanged($order, $old, $new));
+                }
 
-        return back()->with('success', 'Đã thêm ghi chú.');
-    }
+                // ✅ Ghi log
+                if (class_exists(ActivityLog::class)) {
+                    ActivityLog::create([
+                        'user_id'     => Auth::id() ?? 1,
+                        'action'      => 'update_status',
+                        'model_type'  => Order::class,
+                        'model_id'    => $order->id,
+                        'description' => "Cập nhật trạng thái: $old → $new",
+                        'ip'          => request()->ip(),
+                    ]);
+                }
+            });
 
-    /**
-     * Xuất hóa đơn PDF
-     */
-    public function invoice(Order $order)
-    {
-        $order->load(['orderDetails', 'user', 'payment', 'provider']);
-        $pdf = Pdf::loadView('admin.orders.invoice', compact('order'))->setPaper('a4', 'portrait');
-        $fileName = 'invoice-' . $order->code . '.pdf';
-        return $pdf->download($fileName);
+            return back()->with('success', "Đã cập nhật trạng thái [$new] thành công.");
+        } catch (\Exception $e) {
+            return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+        }
     }
 
-    /**
-     * Cập nhật trạng thái đơn hàng qua AJAX
-     */
+    // ------------------ CẬP NHẬT TRẠNG THÁI (AJAX) ------------------
     public function ajaxUpdateStatus(Request $request, Order $order)
     {
-        $request->validate(['status' => 'required|in:pending,confirmed,shipping,completed,cancelled,failed']);
-        
+        // Nếu chưa đăng nhập (bị hết session)
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'
+            ], 401);
+        }
+
+        $request->validate([
+            'status' => 'required|in:pending,confirmed,shipping,completed,cancelled,failed,returned'
+        ]);
+
         $old = $order->status;
         $new = $request->status;
 
-        // Quy tắc chuyển trạng thái
+        // Kiểm tra allowed transitions (giống updateStatus)
         $allowedTransitions = [
             'pending'   => ['confirmed', 'cancelled', 'failed'],
             'confirmed' => ['shipping', 'cancelled'],
-            'shipping'  => ['completed', 'failed'],
+            'shipping'  => ['completed', 'failed', 'returned'],
             'completed' => [],
             'cancelled' => [],
             'failed'    => [],
+            'returned'  => [],
         ];
 
         if (!in_array($new, $allowedTransitions[$old] ?? [])) {
             return response()->json([
                 'success' => false,
-                'message' => "Không thể chuyển từ [$old] sang [$new].",
+                'message' => "Không thể chuyển từ [$old] sang [$new]."
             ]);
         }
 
-        DB::transaction(function () use ($order, $old, $new) {
-            $order->update(['status' => $new]);
-
-            if ($old !== 'confirmed' && $new === 'confirmed') {
-                foreach ($order->orderDetails as $detail) {
-                    $variant = ProductVariant::find($detail->variant_id);
-                    if ($variant) $variant->decrement('stock', $detail->quantity);
+        try {
+            DB::transaction(function () use ($order, $old, $new) {
+                // ✅ Chỉ set staff khi chuyển sang trạng thái "confirmed"
+                if ($new === 'confirmed' && !$order->staff_id) {
+                    $order->staff_id = Auth::id();
+                    $order->confirm_by = Auth::user()->fullname ?? Auth::user()->username ?? 'Nhân viên không xác định';
                 }
-            }
 
+                $order->status = $new;
+                $order->save();
+
+                // ✅ Khi xác nhận đơn thì trừ kho
+                if ($old === 'pending' && $new === 'confirmed') {
+                    foreach ($order->orderDetails as $detail) {
+                        $variant = ProductVariant::find($detail->variant_id);
+                        if ($variant) $variant->decrement('stock', $detail->quantity);
+                    }
+                }
+
+                // ✅ Khi trả hàng
+                if ($new === 'returned') {
+                    if ($order->payment && $order->payment->status === 'paid') {
+                        $order->payment->update(['status' => 'refunded']);
+                    } elseif ($order->user) {
+                        $points = round($order->total_price / 1000);
+                        $order->user->increment('points', $points);
+                    }
+                }
+
+                // ✅ Gửi thông báo
+                if ($order->user) {
+                    $order->user->notify(new OrderStatusChanged($order, $old, $new));
+                }
+
+                // ✅ Ghi log
+                if (class_exists(ActivityLog::class)) {
+                    ActivityLog::create([
+                        'user_id'     => Auth::id() ?? 1,
+                        'action'      => 'update_status_ajax',
+                        'model_type'  => Order::class,
+                        'model_id'    => $order->id,
+                        'description' => "AJAX Status: $old → $new",
+                        'ip'          => request()->ip(),
+                    ]);
+                }
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => "Cập nhật trạng thái [$new] thành công."
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi server: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    // ------------------ GHI CHÚ NỘI BỘ ------------------
+    public function addNote(Request $request, Order $order)
+    {
+        $request->validate([
+            'note' => 'nullable|string|max:2000',
+        ]);
+
+        $order->note = $request->input('note');
+        $order->save();
+
+        if (class_exists(ActivityLog::class)) {
             ActivityLog::create([
                 'user_id' => Auth::id() ?? 1,
-                'action' => 'update_status_ajax',
+                'action' => 'add_internal_note',
                 'model_type' => Order::class,
                 'model_id' => $order->id,
-                'description' => "AJAX Status: $old -> $new",
+                'description' => 'Cập nhật ghi chú nội bộ',
                 'ip' => request()->ip(),
             ]);
-        });
+        }
 
-        return response()->json([
-            'success' => true,
-            'message' => "Cập nhật trạng thái [$new] thành công.",
-            'status' => $new
-        ]);
+        return back()->with('success', 'Đã lưu ghi chú nội bộ.');
     }
-    /**
-     * Xuất danh sách đơn hàng ra CSV
-     */
+
+    // ------------------ XUẤT PDF HOÁ ĐƠN ------------------
+    public function invoice(Order $order)
+    {
+        $order->load(['orderDetails.variant.product', 'user', 'payment']);
+        $pdf = Pdf::loadView('admin.orders.invoice', compact('order'));
+        $fileName = 'invoice_' . $order->code . '.pdf';
+        return $pdf->download($fileName);
+    }
+
+    // ------------------ XUẤT CSV ------------------
     public function exportCsv()
     {
-        $fileName = 'orders_export_' . date('Ymd_His') . '.csv';
-        $orders = Order::with('user')->orderBy('created_at', 'desc')->get();
-
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename={$fileName}",
-        ];
-
-        $callback = function () use ($orders) {
-            $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['ID', 'Code', 'Customer', 'Phone', 'Total', 'Status', 'Payment', 'Created At']);
-            foreach ($orders as $o) {
-                fputcsv($handle, [
+        $fileName = 'orders_export_'.date('Ymd_His').'.csv';
+        $orders = Order::with('user')->orderBy('created_at','desc')->get();
+        $headers = ['Content-Type'=>'text/csv','Content-Disposition'=>"attachment; filename={$fileName}"];
+        $callback = function() use($orders){
+            $handle = fopen('php://output','w');
+            fputcsv($handle,['ID','Code','Customer','Phone','Total','Status','Payment','Created At']);
+            foreach($orders as $o){
+                fputcsv($handle,[
                     $o->id,
                     $o->code,
-                    $o->fullname,
+                    $o->fullname ?? ($o->user->fullname ?? ''),
                     $o->phone,
                     $o->total_price,
                     $o->status,
@@ -235,22 +284,18 @@ class OrderController extends Controller
             }
             fclose($handle);
         };
-
-        return new StreamedResponse($callback, 200, $headers);
+        return new StreamedResponse($callback,200,$headers);
     }
 
-    /**
-     * Xuất Excel chuyên nghiệp bằng PhpSpreadsheet
-     */
+    // ------------------ XUẤT EXCEL ------------------
     public function exportExcel()
     {
-        $orders = \App\Models\Order::with('user')->orderBy('created_at', 'desc')->get();
+        $orders = Order::with('user')->orderBy('created_at', 'desc')->get();
 
-        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Order List');
 
-        // ==== Header ====
         $headings = ['ID', 'Code', 'Customer', 'Phone', 'Total', 'Status', 'Payment', 'Created At'];
         $colLetter = 'A';
         foreach ($headings as $heading) {
@@ -258,23 +303,6 @@ class OrderController extends Controller
             $colLetter++;
         }
 
-        // ==== Style Header ====
-        $headerStyle = [
-            'font' => ['bold' => true, 'size' => 12],
-            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                ],
-            ],
-            'fill' => [
-                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                'startColor' => ['argb' => 'FFEFEFEF'],
-            ],
-        ];
-        $sheet->getStyle('A1:H1')->applyFromArray($headerStyle);
-
-        // ==== Ghi dữ liệu ====
         $rowNum = 2;
         foreach ($orders as $o) {
             $sheet->setCellValue("A{$rowNum}", $o->id);
@@ -288,49 +316,12 @@ class OrderController extends Controller
             $rowNum++;
         }
 
-        $lastRow = $rowNum - 1;
-
-        // ==== Style dữ liệu ====
-        $dataStyle = [
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_HAIR,
-                ],
-            ],
-            'alignment' => ['vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER],
-        ];
-        $sheet->getStyle("A2:H{$lastRow}")->applyFromArray($dataStyle);
-
-        // Format tiền
-        $sheet->getStyle("E2:E{$lastRow}")
-            ->getNumberFormat()
-            ->setFormatCode('#,##0 "₫"');
-
-        // Căn giữa các cột trạng thái, thanh toán
-        $sheet->getStyle("F2:G{$lastRow}")
-            ->getAlignment()
-            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-
-        // ==== Auto width ====
         foreach (range('A', 'H') as $colID) {
             $sheet->getColumnDimension($colID)->setAutoSize(true);
         }
 
-        // ==== Ghi chú cuối file ====
-        $footerRow = $lastRow + 2;
-        $sheet->setCellValue("A{$footerRow}", 'Exported at: ' . now()->format('Y-m-d H:i:s'));
-        $sheet->setCellValue("F{$footerRow}", 'Generated by: SneakerUp Admin');
-
-        $sheet->mergeCells("A{$footerRow}:C{$footerRow}");
-        $sheet->mergeCells("F{$footerRow}:H{$footerRow}");
-
-        $sheet->getStyle("A{$footerRow}:H{$footerRow}")->applyFromArray([
-            'font' => ['italic' => true, 'color' => ['argb' => 'FF777777']],
-        ]);
-
-        // ==== Xuất file ====
         $fileName = 'orders_' . date('Ymd_His') . '.xlsx';
-        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer = new Xlsx($spreadsheet);
 
         return response()->streamDownload(function() use ($writer) {
             $writer->save('php://output');

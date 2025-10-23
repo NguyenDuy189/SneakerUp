@@ -1,17 +1,17 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\OrderController;
-use Illuminate\Foundation\Auth\User;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Admin\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes – SneakerUp
 |--------------------------------------------------------------------------
 | Toàn bộ route cho hệ thống SneakerUp (admin + login)
-| Laravel 12 – bản chuẩn cho đồ án & thực tế
+| Laravel 12 – chuẩn cho đồ án & triển khai thực tế
 |--------------------------------------------------------------------------
 */
 
@@ -32,7 +32,6 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 // -------------------- //
 // 🔹 Nhóm route Admin
 // -------------------- //
-// Middleware `auth` đảm bảo chỉ admin đã login mới vào được
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
 
     // 📊 Trang dashboard
@@ -41,17 +40,24 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     })->name('dashboard');
 
     // 📦 Quản lý đơn hàng
-    Route::resource('orders', OrderController::class)->only(['index', 'show']);
+    Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+    Route::post('orders/{order}/ajax-update-status', [OrderController::class, 'ajaxUpdateStatus'])->name('orders.ajaxUpdateStatus');
     Route::post('orders/{order}/add-note', [OrderController::class, 'addNote'])->name('orders.addNote');
 
-    // 📑 Export & PDF Invoice
-    Route::get('orders/{order}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
+    // 📑 Xuất file & Hóa đơn PDF
     Route::get('orders/export/csv', [OrderController::class, 'exportCsv'])->name('orders.export.csv');
     Route::get('orders/export/excel', [OrderController::class, 'exportExcel'])->name('orders.export.excel');
+    Route::get('orders/{order}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
 
-    // ⚙️ AJAX cập nhật trạng thái (nếu dùng)
-    Route::post('orders/{order}/ajax-update-status', [OrderController::class, 'ajaxUpdateStatus'])->name('orders.ajaxUpdateStatus');
+    // 💳 Quản lý thanh toán
+    Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::get('payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
+    Route::patch('payments/{payment}/status', [PaymentController::class, 'updateStatus'])->name('payments.updateStatus');
+    Route::post('payments/{payment}/mark-paid', [PaymentController::class, 'markPaid'])->name('payments.markPaid');
+    Route::post('payments/{payment}/refund', [PaymentController::class, 'refund'])->name('payments.refund');
+    Route::get('payments/export', [PaymentController::class, 'export'])->name('payments.export');
 
     // 🔔 Xem thông báo (Notifications)
     Route::get('/user/notifications', function () {
