@@ -2,13 +2,13 @@
 
 @section('content')
 <div class="container py-4">
-    <h2 class="fw-bold mb-4">💳 Quản lý thanh toán</h2>
+    <h2 class="fw-bold mb-4">Quản lý thanh toán</h2>
 
     {{-- Lọc & tìm kiếm --}}
     <div class="d-flex justify-content-between align-items-center mb-3">
         <form action="{{ route('admin.payments.index') }}" method="GET" class="d-flex gap-2">
             <input type="text" name="search" value="{{ request('search') }}" 
-                placeholder="🔍 Tìm mã đơn, khách hàng, SĐT, phương thức..."
+                placeholder="Tìm mã đơn, khách hàng, SĐT, phương thức..."
                 class="form-control" style="width: 300px;">
 
             <select name="status" class="form-select" style="width: 180px;">
