@@ -19,29 +19,25 @@ use App\Http\Controllers\Admin\PaymentController;
 // -------------------- //
 // 🔹 Trang chủ – tự động chuyển đến login
 // -------------------- //
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+Route::get('/', fn () => redirect()->route('login'));
 
 // -------------------- //
 // 🔹 Xác thực (Login / Logout)
 // -------------------- //
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::controller(AuthController::class)->group(function () {
+    Route::get('/login', 'showLoginForm')->name('login');
+    Route::post('/login', 'login')->name('login.post');
+    Route::get('/logout', 'logout')->name('logout');
+});
 
 // -------------------- //
 // 🔹 Nhóm route dành cho ADMIN (bắt buộc đăng nhập)
 // -------------------- //
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
 
-    // 📊 Trang Dashboard chính
+    // 📊 Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-    // API endpoint cho AJAX charts & filters
     Route::get('/dashboard/data', [DashboardController::class, 'data'])->name('dashboard.data');
-
-    // Exports
     Route::get('/dashboard/export/csv', [DashboardController::class, 'exportCsv'])->name('dashboard.export.csv');
     Route::get('/dashboard/export/excel', [DashboardController::class, 'exportExcel'])->name('dashboard.export.excel');
     Route::get('/dashboard/export/pdf', [DashboardController::class, 'exportPdf'])->name('dashboard.export.pdf');
