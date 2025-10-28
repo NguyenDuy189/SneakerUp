@@ -30,6 +30,26 @@
     <label>Giá:</label>
     <input type="number" name="price" value="{{ $product->price }}" class="form-control" min="0" required>
 
+    <div class="mb-3">
+    <label for="discount" class="form-label">Giảm giá (%)</label>
+    <input type="number" name="discount" id="discount" 
+           class="form-control" 
+           value="{{ old('discount', $product->discount ?? 0) }}" 
+           min="0" max="100" placeholder="Nhập phần trăm giảm giá (0 - 100)">
+    </div>
+    <!--  -->
+    <div class="mb-3">
+    <label for="discount_id" class="form-label">Giảm giá</label>
+    <select name="discount_id" id="discount_id" class="form-select">
+        <option value="">-- Không giảm giá --</option>
+        @foreach ($discounts as $discount)
+            <option value="{{ $discount->id }}" {{ $product->discount_id == $discount->id ? 'selected' : '' }}>
+                {{ $discount->name }} ({{ $discount->percent }}%)
+            </option>
+        @endforeach
+    </select>
+    </div>
+
     <label>Ảnh:</label><br>
     @if($product->image)
         <img src="{{ asset('uploads/products/'.$product->image) }}" width="100"><br>

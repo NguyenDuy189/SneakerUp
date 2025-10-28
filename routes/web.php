@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\ProductVariantController;
 
 /*
 |--------------------------------------------------------------------------
@@ -72,6 +73,24 @@ Route::prefix('admin')->middleware('admin.auth')->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('products', App\Http\Controllers\Admin\ProductController::class);
     });
+    Route::get('/admin/products', [ProductController::class, 'index'])->name('admin.products.index');
     
+    //rou quản lý biến thể màu sắc,size,ảnh
+    Route::prefix('admin')->group(function () {
+    Route::get('/products/{product}/variants', [ProductVariantController::class, 'index'])->name('variants.index');
+    Route::get('/products/{product}/variants/create', [ProductVariantController::class, 'create'])->name('variants.create');
+    Route::post('/products/{product}/variants', [ProductVariantController::class, 'store'])->name('variants.store');
+    Route::delete('/variants/{id}', [ProductVariantController::class, 'destroy'])->name('variants.destroy');
+    });
 
-});
+    Route::resource('admin/tags', TagController::class);//Quản lý tags sản phẩm (Hot, New, Sale)
+    });
+
+    //Nhập / xuất file Excel danh sách sản phẩm
+    Route::get('/admin/products/export', [ProductController::class, 'exportExcel'])->name('products.export');
+    Route::post('/admin/products/import', [ProductController::class, 'importExcel'])->name('products.import');
+    
+    //Bật / tắt hiển thị sản phẩm nổi bật
+    Route::post('/admin/products/{id}/toggle-featured', [ProductController::class, 'toggleFeatured'])
+    ->name('admin.products.toggle-featured');
+
