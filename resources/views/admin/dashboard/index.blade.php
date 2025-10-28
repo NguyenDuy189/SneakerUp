@@ -6,13 +6,13 @@
 <div class="container-fluid py-4">
 
     {{-- Header area: presets + filters + actions --}}
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start mb-4 gap-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start mb-4 gap-2">
         <div class="d-flex gap-2 align-items-center">
             <h4 class="mb-0 fw-bold">Dashboard</h4>
             <small class="text-muted">| Tổng quan & báo cáo</small>
         </div>
 
-        <div class="d-flex gap-2 align-items-center">
+        <div class="d-flex gap-4 align-items-center">
             {{-- quick presets --}}
             <div class="btn-group me-2" role="group">
                 <button class="btn btn-outline-secondary btn-sm preset" data-range="7">7 ngày</button>
@@ -21,7 +21,7 @@
             </div>
 
             {{-- date filter --}}
-            <form id="filterForm" class="d-flex gap-2 align-items-end">
+            <form id="filterForm" class="d-flex gap-4 align-items-end">
                 <div>
                     <label class="form-label small mb-1">Từ</label>
                     <input type="date" name="start_date" id="start_date" class="form-control form-control-sm" value="{{ $startDate }}">
@@ -108,7 +108,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0 fw-bold"><i class="fa-solid fa-chart-area me-2 text-primary"></i> Doanh thu & Đơn hàng (Tháng)</h5>
-                        <div class="d-flex gap-2 align-items-center">
+                        <div class="d-flex gap-4 align-items-center">
                             <select id="yearSelect" class="form-select form-select-sm">
                                 @for($y = now()->year; $y >= now()->year - 4; $y--)
                                     <option value="{{ $y }}" {{ $y == now()->year ? 'selected' : '' }}>{{ $y }}</option>
@@ -184,6 +184,93 @@
             </div>
         </div>
     </div>
+
+    {{-- Giữ nguyên toàn bộ nội dung cũ của bạn --}}
+    {{-- Sau phần Recent orders, thêm: --}}
+
+    <div class="row g-4 mt-4">
+        {{-- Khách hàng mới --}}
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-user-plus text-success me-2"></i> Khách hàng mới</h5>
+                    <ul class="list-group list-group-flush">
+                        @foreach($newCustomers as $user)
+                            <li class="list-group-item border-0">
+                                <strong>{{ $user->fullname }}</strong>
+                                <div class="small text-muted">{{ $user->email }} — {{ \Carbon\Carbon::parse($user->created_at)->diffForHumans() }}</div>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        {{-- Khách hàng thân thiết --}}
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-crown text-warning me-2"></i> Khách hàng thân thiết</h5>
+                    <ul class="list-group list-group-flush">
+                        @foreach($loyalCustomers as $c)
+                            <li class="list-group-item border-0 d-flex justify-content-between">
+                                <span>{{ $c->fullname }}</span>
+                                <span class="badge bg-primary">{{ $c->total_orders }} đơn</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        {{-- Sản phẩm sắp hết hàng --}}
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-box-open text-danger me-2"></i> Sản phẩm sắp hết hàng</h5>
+                    <table class="table table-sm align-middle">
+                        <thead class="bg-light">
+                            <tr><th>Tên sản phẩm</th><th>Tồn kho</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach($lowStockProducts as $p)
+                                <tr>
+                                    <td>{{ $p->name }}</td>
+                                    <td><span class="badge bg-danger">{{ $p->stock }}</span></td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+            
+        {{-- Thông báo --}}
+        <div class="row g-4 mt-4">
+            <div class="col-lg-12">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-bell text-danger me-2"></i> Thông báo</h5>
+                        <ul class="list-group list-group-flush">
+                            @forelse($notifications as $note)
+                            <li class="list-group-item border-0 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-{{ $note['type'] }} me-2">&nbsp;</span>
+                                    {{ $note['message'] }}
+                                </div>
+                                <small class="text-muted">{{ $note['time'] }}</small>
+                            </li>
+                            @empty
+                            <li class="list-group-item text-muted">Không có thông báo.</li>
+                            @endforelse
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+            
+
 
 </div>
 @endsection

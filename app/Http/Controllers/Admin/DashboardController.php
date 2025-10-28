@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Throwable;
 use App\Exports\ArrayExport;
 use App\Exports\DashboardExport;
+use App\Models\Dashboard;
 use App\Models\Order;
 use App\Models\Product;
 use Maatwebsite\Excel\Facades\Excel;
@@ -29,37 +30,42 @@ class DashboardController extends Controller
      */
     public function index(Request $request)
     {
-        // --- Xác định khoảng thời gian ---
+        // 🗓️ Lọc theo thời gian hoặc mặc định 30 ngày gần nhất
         $startDate = $request->input('start_date', Carbon::now()->subDays(30)->toDateString());
         $endDate   = $request->input('end_date', Carbon::now()->toDateString());
-        $year      = Carbon::now()->year;
+        $year      = $request->input('year', Carbon::now()->year);
 
-        // --- Dữ liệu tổng quan ---
-        $summary = [
-            'totalRevenue'  => $this->getTotalRevenue($startDate, $endDate),
-            'totalOrders'   => $this->getTotalOrders($startDate, $endDate),
-            'totalUsers'    => DB::table('users')->count(),
-            'totalProducts' => DB::table('products')->count(),
-        ];
+        // 📊 Dữ liệu tổng quan
+        $summary            = Dashboard::getSummary();
+        $monthlyRevenue     = Dashboard::getMonthlyRevenue();
+        $monthlyOrders      = $this->getMonthlyOrders((int) $year);
+        $statusDistribution = $this->getOrderStatusDistribution($startDate, $endDate); // 🆕 thêm dòng này
 
-        // --- Dữ liệu biểu đồ ---
-        $monthlyRevenue       = $this->getMonthlyRevenue($year);
-        $monthlyOrders        = $this->getMonthlyOrders($year);
-        $topProducts          = $this->getTopProducts($startDate, $endDate);
-        $recentOrders         = $this->getRecentOrders();
-        $statusDistribution   = $this->getOrderStatusDistribution($startDate, $endDate);
+        // 📈 Dữ liệu chi tiết khác
+        $topProducts      = Dashboard::getTopProducts();
+        $recentOrders     = Dashboard::getRecentOrders();
+        $lowStockProducts = Dashboard::getLowStockProducts();
+        $newCustomers     = Dashboard::getNewCustomers();
+        $loyalCustomers   = Dashboard::getLoyalCustomers();
+        $notifications    = Dashboard::getNotifications();
 
+        // ✅ Truyền toàn bộ dữ liệu sang view
         return view('admin.dashboard.index', compact(
             'summary',
             'monthlyRevenue',
             'monthlyOrders',
+            'statusDistribution', // 🆕 thêm dòng này
             'topProducts',
             'recentOrders',
-            'statusDistribution',
+            'lowStockProducts',
+            'newCustomers',
+            'loyalCustomers',
+            'notifications',
             'startDate',
             'endDate'
         ));
     }
+
 
     /**
      * AJAX endpoint – trả dữ liệu JSON cho biểu đồ (lọc theo thời gian)
