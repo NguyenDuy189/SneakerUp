@@ -10,6 +10,11 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\ProductVariantController;
+use App\Http\Controllers\WarehouseController;
+use App\Http\Controllers\WarehouseLogController;
+use App\Http\Controllers\Admin\DiscountController;
+//client
+
 
 /*
 |--------------------------------------------------------------------------
@@ -94,3 +99,25 @@ Route::prefix('admin')->middleware('admin.auth')->group(function () {
     Route::post('/admin/products/{id}/toggle-featured', [ProductController::class, 'toggleFeatured'])
     ->name('admin.products.toggle-featured');
 
+    //Quản lý kho hàng
+    Route::prefix('admin')->middleware(['auth'])->group(function () {
+    Route::get('/warehouse', [WarehouseController::class, 'index'])->name('admin.warehouse.index');
+    Route::get('/warehouse/import/{id}', [WarehouseController::class, 'showImportForm'])->name('admin.warehouse.import');
+    Route::post('/warehouse/import/{id}', [WarehouseController::class, 'storeImport'])->name('admin.warehouse.import.store');
+    Route::get('/warehouse/export/{id}', [WarehouseController::class, 'showExportForm'])->name('admin.warehouse.export');
+    Route::post('/warehouse/export/{id}', [WarehouseController::class, 'storeExport'])->name('admin.warehouse.export.store');
+    });
+
+    //Nhật kí xuất nhập kho
+    Route::prefix('admin')->group(function () {
+    Route::get('/warehouse/logs', [WarehouseLogController::class, 'index'])->name('admin.warehouse.logs');
+    });
+
+
+    //quản lý mã giảm giá
+    Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+    Route::resource('discounts', \App\Http\Controllers\Admin\DiscountController::class);
+    });
+
+
+    //ng dùng

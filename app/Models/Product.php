@@ -81,4 +81,10 @@ public function getFinalPriceAttribute()
 
         return $this->price;
     }
+
+    //quản lý kho hàng
+        public function imports()
+    {
+        return $this->hasManyThrough(ImportDetail::class, ProductVariant::class, 'product_id', 'variant_id', 'id', 'id');
+    }
 }

@@ -56,6 +56,15 @@
 
 <div class="sidebar">
     <a href="#" class="active">Quản lý sản phẩm</a>
+    <li><a href="{{ url('/admin/warehouse') }}">Quản lý kho hàng</a></li>
+    <li class="nav-item">
+    <a href="{{ route('admin.warehouse.logs') }}" class="nav-link">🧾 Nhật ký kho</a>
+    </li>
+    <li class="nav-item">
+    <a class="nav-link" href="{{ route('admin.discounts.index') }}">
+        Quản lý mã giảm giá
+    </a>
+    </li>
     <a href="#">Quản lý đơn hàng</a>
     <a href="#">Quản lý danh mục</a>
     <a href="#">Báo cáo & Thống kê</a>
