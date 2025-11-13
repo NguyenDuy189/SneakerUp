@@ -43,6 +43,10 @@ class Order extends Model
         return $this->belongsTo(Voucher::class);
     }
 
+    public function items() {
+        return $this->hasMany(OrderItem::class);
+    }
+
     /**
      * Trả về label tiếng Việt cho trạng thái
      */

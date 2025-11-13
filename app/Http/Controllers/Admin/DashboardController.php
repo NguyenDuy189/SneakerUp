@@ -365,5 +365,37 @@ class DashboardController extends Controller
         })->toArray();
     }
 
+    /**
+     * API – Doanh thu theo ngày cho biểu đồ Chart.js
+     */
+    public function salesTrend(Request $request)
+    {
+        $start = $request->query('start_date')
+            ? Carbon::parse($request->query('start_date'))
+            : Carbon::now()->startOfMonth();
+
+        $end = $request->query('end_date')
+            ? Carbon::parse($request->query('end_date'))
+            : Carbon::now();
+
+        $data = Order::select(
+            DB::raw('DATE(created_at) as date'),
+            DB::raw('SUM(total_price) as revenue')
+        )
+            ->where('status', 'completed')
+            ->whereBetween('created_at', [$start, $end])
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        return response()->json(
+            $data->map(function ($item) {
+                return [
+                    'date' => Carbon::parse($item->date)->format('d/m'),
+                    'revenue' => (float)$item->revenue,
+                ];
+            })
+        );
+    }
 
 }

@@ -9,223 +9,248 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
 
-    {{-- Google Font --}}
+    {{-- Google Fonts --}}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-    {{-- Custom Style --}}
+    {{-- Custom CSS --}}
     <style>
         :root {
+            --primary: #ff6b00;
+            --primary-light: #ffa552;
             --sidebar-bg: #1f2937;
-            --sidebar-active: #2563eb;
             --sidebar-hover: #374151;
+            --sidebar-active: #ff6b00;
             --sidebar-text: #cbd5e1;
-            --header-bg: #fff;
-            --body-bg: #f5f7fa;
-            --text-color: #333;
+            --bg-light: #f8fafc;
+            --text-color: #1e293b;
+            --transition: all 0.3s ease;
         }
+
         [data-theme="dark"] {
+            --bg-light: #0f172a;
             --sidebar-bg: #111827;
-            --sidebar-active: #3b82f6;
-            --sidebar-hover: #1f2937;
+            --sidebar-hover: #1e293b;
             --sidebar-text: #9ca3af;
-            --header-bg: #1f2937;
-            --body-bg: #111827;
-            --text-color: #f3f4f6;
+            --text-color: #e2e8f0;
         }
+
         body {
             font-family: "Inter", sans-serif;
-            background-color: var(--body-bg);
+            background-color: var(--bg-light);
             color: var(--text-color);
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
-        /* Sidebar */
+
+        /* SIDEBAR */
         .sidebar {
-            width: 260px;
+            width: 250px;
             background: var(--sidebar-bg);
-            color: var(--sidebar-text);
             position: fixed;
             top: 0;
-            left: 0;
             bottom: 0;
+            left: 0;
+            color: var(--sidebar-text);
             display: flex;
             flex-direction: column;
-            transition: all 0.3s ease;
+            justify-content: space-between;
+            transition: var(--transition);
+            box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
         }
-        .sidebar .logo {
-            font-weight: 700;
-            font-size: 22px;
+
+        .sidebar-header {
+            background: var(--primary);
+            color: white;
             text-align: center;
-            padding: 22px 0;
+            font-size: 22px;
+            font-weight: 700;
+            padding: 18px 0;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-nav a {
+            color: var(--sidebar-text);
+            padding: 12px 20px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            border-left: 4px solid transparent;
+            transition: var(--transition);
+        }
+
+        .sidebar-nav a:hover {
             background: var(--sidebar-hover);
             color: #fff;
-            letter-spacing: 0.5px;
         }
-        .sidebar a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: var(--sidebar-text);
-            padding: 12px 22px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.25s ease;
-            border-left: 3px solid transparent;
-        }
-        .sidebar a:hover {
-            background-color: var(--sidebar-hover);
+
+        .sidebar-nav a.active {
+            background: rgba(255, 107, 0, 0.15);
             color: #fff;
+            border-left: 4px solid var(--primary);
         }
-        .sidebar a.active {
-            background-color: var(--sidebar-active);
-            color: #fff;
-            border-left-color: #93c5fd;
-        }
-        .sidebar a i {
+
+        .sidebar-nav a i {
+            font-size: 16px;
             width: 20px;
             text-align: center;
-            transition: transform 0.2s ease;
-        }
-        .sidebar a:hover i {
-            transform: scale(1.15);
         }
 
-        /* Main layout */
-        .main-content {
-            margin-left: 260px;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            transition: all 0.3s;
-        }
-
-        header {
-            background-color: var(--header-bg);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .user-info img {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--sidebar-active);
-        }
-        .content-wrapper {
-            flex: 1;
-            padding: 30px;
-        }
-
-        footer {
-            background: var(--header-bg);
+        .sidebar-footer {
             text-align: center;
-            padding: 15px;
+            padding: 15px 0;
             font-size: 13px;
-            border-top: 1px solid #e5e7eb;
+            background: var(--sidebar-hover);
             color: #9ca3af;
         }
 
-        /* Dark mode toggle */
-        .toggle-switch {
-            position: absolute;
-            bottom: 25px;
-            left: 25px;
-            background: var(--sidebar-hover);
-            padding: 8px 15px;
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 250px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: white;
+            padding: 14px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .content-wrapper {
+            flex: 1;
+            padding: 25px 35px;
+            background: var(--bg-light);
+            animation: fadeIn 0.4s ease;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            font-size: 13px;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* BUTTONS */
+        .btn-primary {
+            background-color: var(--primary);
+            border: none;
+            transition: var(--transition);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+        }
+
+        /* FLASH MESSAGES */
+        .alert i {
+            margin-right: 6px;
+        }
+
+        /* ANIMATION */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* DARK MODE SWITCH */
+        .theme-toggle {
+            padding: 10px;
+            margin: 10px;
             border-radius: 20px;
+            background: var(--sidebar-hover);
+            color: #f3f4f6;
             cursor: pointer;
-            font-size: 14px;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            color: #e5e7eb;
-            transition: 0.3s;
+            font-size: 14px;
+            transition: var(--transition);
         }
-        .toggle-switch:hover {
-            background: var(--sidebar-active);
+
+        .theme-toggle:hover {
+            background: var(--primary);
             color: #fff;
         }
 
-        /* Responsive */
         @media (max-width: 992px) {
-            .sidebar { width: 220px; }
-            .main-content { margin-left: 220px; }
-        }
-        @media (max-width: 768px) {
-            .sidebar { left: -260px; position: absolute; }
+            .sidebar { left: -250px; }
             .main-content { margin-left: 0; }
         }
     </style>
+
     @stack('styles')
 </head>
 <body>
 
-    {{-- Sidebar --}}
-    <div class="sidebar" id="sidebar">
-        <div class="logo">👟 SneakerUp</div>
+    {{-- SIDEBAR --}}
+    <aside class="sidebar">
+        <div>
+            <div class="sidebar-header">👟 SneakerUp</div>
 
-        <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-            <i class="fa-solid fa-house"></i> Dashboard
-        </a>
+            <nav class="sidebar-nav">
+                <a href="{{ route('admin.dashboard.index') }}" class="{{ request()->routeIs('admin.dashboard.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-gauge"></i> Dashboard
+                </a>
+                <a href="{{ route('admin.orders.index') }}" class="{{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-box"></i> Đơn hàng
+                </a>
+                <a href="{{ route('admin.payments.index') }}" class="{{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-credit-card"></i> Thanh toán
+                </a>
+                <a href="#"><i class="fa-solid fa-shoe-prints"></i> Sản phẩm</a>
+                <a href="{{route('admin.categories.index')}}"><i class="fa-solid fa-tags"></i> Danh mục</a>
+                <a href="#"><i class="fa-solid fa-users"></i> Người dùng</a>
+                <a href="{{ route('admin.reports.index')}}"><i class="fa-solid fa-chart-line"></i> Báo cáo</a>
+                <a href="{{ route('logout') }}" class="text-danger">
+                    <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+                </a>
+            </nav>
+        </div>
 
-        <a href="{{ route('admin.orders.index') }}" class="{{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
-            <i class="fa-solid fa-box"></i> Đơn hàng
-        </a>
-
-        <a href="{{ route('admin.payments.index') }}" class="{{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
-            <i class="fa-solid fa-credit-card"></i> Thanh toán
-        </a>
-
-        <a href="#"><i class="fa-solid fa-shoe-prints"></i> Sản phẩm</a>
-        <a href="#"><i class="fa-solid fa-tags"></i> Danh mục</a>
-        <a href="#"><i class="fa-solid fa-users"></i> Người dùng</a>
-        <a href="#"><i class="fa-solid fa-chart-line"></i> Báo cáo</a>
-        <a href="{{ route('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
-
-        <div class="toggle-switch" id="themeToggle">
+        <div class="theme-toggle" id="themeToggle">
             <i class="fa-solid fa-moon"></i> <span>Dark Mode</span>
         </div>
-    </div>
 
-    {{-- Main --}}
+        <div class="sidebar-footer">
+            © {{ date('Y') }} SneakerUp<br> All Rights Reserved
+        </div>
+    </aside>
+
+    {{-- MAIN --}}
     <div class="main-content">
         <header>
-            <div class="fw-bold">Trang quản trị SneakerUp</div>
-            <div class="user-info dropdown">
-                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
-                    <img src="https://i.pravatar.cc/50?u={{ Auth::id() }}" alt="Admin Avatar">
-                    <div class="ms-2">
-                        <strong>{{ Auth::user()->fullname ?? 'Admin' }}</strong><br>
-                        <small class="text-muted">{{ Auth::user()->role ?? 'Quản trị viên' }}</small>
-                    </div>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-user me-2"></i>Hồ sơ</a></li>
-                    <li><a class="dropdown-item text-danger" href="{{ route('logout') }}"><i class="fa-solid fa-right-from-bracket me-2"></i>Đăng xuất</a></li>
-                </ul>
+            <h5 class="mb-0 fw-bold text-primary">Trang quản trị SneakerUp</h5>
+            <div class="d-flex align-items-center gap-3">
+                <div class="text-end">
+                    <strong>{{ Auth::user()->fullname ?? 'Admin' }}</strong><br>
+                    <small class="text-muted">{{ Auth::user()->role ?? 'Quản trị viên' }}</small>
+                </div>
+                <img src="https://i.pravatar.cc/50?u={{ Auth::id() }}" alt="Avatar" class="rounded-circle border border-2 border-warning" width="45" height="45">
             </div>
         </header>
 
         <main class="content-wrapper">
-            {{-- Flash messages --}}
+            {{-- Thông báo --}}
             @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show mb-3">
-                    <i class="fa-solid fa-circle-check me-2"></i>{{ session('success') }}
+                <div class="alert alert-success alert-dismissible fade show">
+                    <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             @elseif (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show mb-3">
-                    <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ session('error') }}
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="fa-solid fa-triangle-exclamation"></i> {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             @endif
@@ -234,20 +259,20 @@
         </main>
 
         <footer>
-            © {{ date('Y') }} SneakerUp Admin Dashboard — All Rights Reserved
+            SneakerUp Admin Dashboard – Nền tảng quản trị chuyên nghiệp dành cho cửa hàng giày
         </footer>
     </div>
 
-    {{-- JS --}}
+    {{-- SCRIPTS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    {{-- Dark Mode Toggle Script --}}
     <script>
+        // Dark mode toggle
         const html = document.documentElement;
-        const themeToggle = document.getElementById('themeToggle');
-        const icon = themeToggle.querySelector('i');
-        const text = themeToggle.querySelector('span');
-        const currentTheme = localStorage.getItem('theme') || 'light';
+        const toggle = document.getElementById('themeToggle');
+        const icon = toggle.querySelector('i');
+        const text = toggle.querySelector('span');
+        const current = localStorage.getItem('theme') || 'light';
 
         function setTheme(theme) {
             html.setAttribute('data-theme', theme);
@@ -261,10 +286,10 @@
             }
         }
 
-        setTheme(currentTheme);
-        themeToggle.addEventListener('click', () => {
-            const newTheme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-            setTheme(newTheme);
+        setTheme(current);
+        toggle.addEventListener('click', () => {
+            const theme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            setTheme(theme);
         });
     </script>
 
