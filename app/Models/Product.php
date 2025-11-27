@@ -22,4 +22,17 @@ class Product extends Model
     {
         return $this->belongsToMany(Category::class);
     }
+    // Quan hệ: Một sản phẩm có nhiều đánh giá
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    // THÊM HÀM NÀY: Tự động tính toán điểm trung bình
+    // (chỉ tính các đánh giá đã được 'approved')
+   public function getAverageRatingAttribute()
+{
+    // SỬA TỪ 'approved' THÀNH 'visible'
+    return $this->reviews()->where('status', 'visible')->avg('rating');
+}
 }

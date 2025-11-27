@@ -17,16 +17,16 @@ class RoleController extends Controller
         return view('admin.roles.index', compact('roles'));
     }
 
-   public function create()
-{
-    // Lấy tất cả các quyền hạn, giống hệt như hàm edit()
-    $permissions = Permission::all();
-    $permissionLabels = $this->getPermissionLabels();
-    $groupedPermissions = $this->groupPermissions($permissions);
+    public function create()
+    {
+        // Lấy tất cả các quyền hạn, giống hệt như hàm edit()
+        $permissions = Permission::all();
+        $permissionLabels = $this->getPermissionLabels();
+        $groupedPermissions = $this->groupPermissions($permissions);
 
-    // Gửi tất cả dữ liệu này ra view 'create'
-    return view('admin.roles.create', compact('permissions', 'permissionLabels', 'groupedPermissions'));
-}
+        // Gửi tất cả dữ liệu này ra view 'create'
+        return view('admin.roles.create', compact('permissions', 'permissionLabels', 'groupedPermissions'));
+    }
     public function store(Request $request)
     {
         $request->validate([
@@ -126,6 +126,22 @@ class RoleController extends Controller
             'role-create' => 'Tạo vai trò mới',
             'role-edit' => 'Sửa vai trò & gán quyền',
             'role-delete' => 'Xóa vai trò',
+
+            // === TÔI ĐÃ THÊM CÁC QUYỀN MỚI CHO BẠN Ở ĐÂY ===
+            'post-category-list' => 'Xem danh mục bài viết',
+            'post-category-create' => 'Thêm danh mục bài viết',
+            'post-category-edit' => 'Sửa danh mục bài viết',
+            'post-category-delete' => 'Xóa danh mục bài viết',
+
+            'post-list' => 'Xem danh sách bài viết',
+            'post-create' => 'Thêm mới bài viết',
+            'post-edit' => 'Sửa bài viết',
+            'post-delete' => 'Xóa bài viết',
+
+            'review-list' => 'Xem danh sách đánh giá',
+            'review-edit' => 'Sửa/Duyệt đánh giá',
+            'review-delete' => 'Xóa đánh giá',
+            // === KẾT THÚC PHẦN THÊM MỚI ===
         ];
     }
 }

@@ -70,4 +70,16 @@ class User extends Authenticatable
             // Không lưu log nếu chỉ có các thuộc tính này thay đổi
             ->dontSubmitEmptyLogs();
     }
+    public function reviews()
+{
+    return $this->hasMany(Review::class);
+}
+/**
+     * Định nghĩa quan hệ:
+     * Một người dùng có thể có NHIỀU địa chỉ.
+     */
+    public function addresses()
+    {
+        return $this->hasMany(UserAddress::class);
+    }
 }
