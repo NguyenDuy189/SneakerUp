@@ -3,11 +3,11 @@
    =================================================================== */
 
 /* === 1. THIẾT LẬP CHUNG & BỐ CỤC === */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
 
 body {
-   margin: 0;
-    font-family: 'Roboto', Arial, sans-serif;
+    margin: 0;
+    font-family: "Roboto", Arial, sans-serif;
     background-color: #f8f9fa;
     color: #495057;
 }
@@ -33,9 +33,9 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 15px 30px;
-    background-color: #FF9900;
+    background-color: #ff9900;
     color: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .header-right a {
@@ -46,7 +46,7 @@ body {
 
 .footer {
     padding: 15px 30px;
-    background-color: #FF9900;
+    background-color: #ff9900;
     color: white;
     text-align: center;
 }
@@ -68,7 +68,7 @@ body {
 .sidebar-header .logo {
     font-size: 24px;
     font-weight: bold;
-    color: #FF9900;
+    color: #ff9900;
 }
 
 .sidebar-nav {
@@ -94,7 +94,7 @@ body {
 }
 
 .nav-item.active {
-    background-color: #FF9900;
+    background-color: #ff9900;
     color: white;
 }
 
@@ -150,17 +150,18 @@ body {
     transform: rotate(180deg);
 }
 
-.nav-submenu-item {
-    display: block !important;
-    padding: 12px 20px 12px 45px !important;
-    font-size: 14px !important;
-    font-weight: normal !important;
+/* --- ĐÃ SỬA: Tăng độ ưu tiên để bỏ !important --- */
+.sidebar-nav .nav-submenu-item {
+    display: block;
+    padding: 12px 20px 12px 45px;
+    font-size: 14px;
+    font-weight: normal;
     color: #aeb2b7;
 }
 
-.nav-submenu-item.active {
-    background-color: #FF9900 !important;
-    color: white !important;
+.sidebar-nav .nav-submenu-item.active {
+    background-color: #ff9900;
+    color: white;
 }
 
 /* === 5. BẢNG DỮ LIỆU (PHIÊN BẢN CUỐI CÙNG, ĐÃ SỬA LỖI LỆCH HÀNG) === */
@@ -168,7 +169,7 @@ body {
     background-color: #fff;
     border-radius: 8px;
     padding: 25px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .table-header {
@@ -201,9 +202,6 @@ table th {
     border-bottom-width: 2px;
 }
 
-/* SỬA LỖI MẤT GẠCH NGANG: Xóa bỏ quy tắc "last-child" */
-/* Bây giờ tất cả các dòng đều sẽ có gạch ngang */
-
 table tbody tr:hover {
     background-color: #f1f3f5;
 }
@@ -217,6 +215,9 @@ table tbody tr:hover {
     display: flex;
     align-items: center;
     gap: 15px;
+}
+.action-buttons form {
+    margin: 0;
 }
 
 .action-icon {
@@ -232,8 +233,13 @@ table tbody tr:hover {
     transform: scale(1.2);
 }
 
-.view-icon { color: #17a2b8; }
-.edit-icon, .fa-user-lock { color: #ffc107; }
+.view-icon {
+    color: #17a2b8;
+}
+.edit-icon,
+.fa-user-lock {
+    color: #ffc107;
+}
 
 .action-buttons .delete-icon {
     border: none;
@@ -250,8 +256,11 @@ table tbody tr:hover {
     color: #a71d2a;
 }
 
-/* Tags (Vai trò, Trạng thái) */
-.role-tag, .status-tag, .order-status {
+/* --- ĐÃ SỬA: Tách riêng style cho Status và Role --- */
+
+/* Tags (Trạng thái đơn hàng, Trạng thái chung) */
+.status-tag,
+.order-status {
     padding: 5px 10px;
     border-radius: 15px;
     font-size: 12px;
@@ -259,12 +268,25 @@ table tbody tr:hover {
     text-transform: capitalize;
 }
 
-.role-admin, .status-cancelled { background-color: #dc3545; }
-.role-customer, .status-active, .status-completed { background-color: #28a745; }
-.role-staff { background-color: #17a2b8; }
-.status-inactive, .status-pending { background-color: #ffc107; color: #212529;}
-.status-confirmed { background-color: #007bff; }
-.status-shipping { background-color: #fd7e14; }
+.status-cancelled {
+    background-color: #dc3545;
+}
+.status-active,
+.status-completed {
+    background-color: #28a745;
+}
+.status-inactive,
+.status-pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+.status-confirmed {
+    background-color: #007bff;
+}
+.status-shipping {
+    background-color: #fd7e14;
+}
+/* (Phần style cho role-tag đã được chuyển xuống cuối file) */
 
 /* === 5. FORM & CÁC THÀNH PHẦN KHÁC === */
 
@@ -303,8 +325,6 @@ table tbody tr:hover {
     white-space: nowrap;
     transition: all 0.2s ease-in-out;
     min-width: 100px;
-
-    /* SỬA LỖI NẰM Ở ĐÂY: Ép buộc tất cả các nút phải tính toán kích thước theo cùng một cách */
     box-sizing: border-box;
 }
 
@@ -329,7 +349,7 @@ table tbody tr:hover {
     background-color: #fff;
     padding: 30px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 .form-group {
     margin-bottom: 20px;
@@ -339,7 +359,8 @@ table tbody tr:hover {
     font-weight: bold;
     margin-bottom: 8px;
 }
-.form-group input, .form-group select {
+.form-group input,
+.form-group select {
     width: 100%;
     padding: 10px;
     border: 1px solid #ddd;
@@ -363,7 +384,7 @@ table tbody tr:hover {
     transition: border-color 0.3s;
 }
 .search-container input[type="text"]:focus {
-    border-color: #FF9900;
+    border-color: #ff9900;
 }
 .search-container .search-button {
     position: absolute;
@@ -379,7 +400,7 @@ table tbody tr:hover {
     transition: color 0.2s ease-in-out;
 }
 .search-container .search-button:hover {
-    color: #FF9900;
+    color: #ff9900;
 }
 
 /* Phân trang */
@@ -392,9 +413,12 @@ table tbody tr:hover {
     list-style: none;
     padding: 0;
 }
-.pagination li { margin: 0 5px; }
-.pagination li a, .pagination li span {
-    color: #FF9900;
+.pagination li {
+    margin: 0 5px;
+}
+.pagination li a,
+.pagination li span {
+    color: #ff9900;
     padding: 8px 15px;
     text-decoration: none;
     border: 1px solid #ddd;
@@ -402,9 +426,9 @@ table tbody tr:hover {
     transition: all 0.3s;
 }
 .pagination li.active span {
-    background-color: #FF9900;
+    background-color: #ff9900;
     color: white;
-    border-color: #FF9900;
+    border-color: #ff9900;
 }
 .pagination li a:hover {
     background-color: #f5f5f5;
@@ -433,39 +457,8 @@ table tbody tr:hover {
     margin-top: 5px;
     font-size: 12px;
 }
-/* Thêm vào cuối file public/css/admin_style.css */
 
-/* === NÂNG CẤP GIAO DIỆN FORM PHÂN QUYỀN === */
-.permission-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 15px;
-    background-color: #f8f9fa;
-    padding: 20px;
-    border-radius: 5px;
-    border: 1px solid #dee2e6;
-}
-
-.permission-item {
-    display: flex; /* Dùng Flexbox để căn chỉnh */
-    align-items: center; /* Căn giữa checkbox và chữ theo chiều dọc */
-    gap: 10px; /* Tạo khoảng cách giữa checkbox và chữ */
-    background-color: #fff;
-    padding: 10px;
-    border-radius: 4px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-
-.permission-item label {
-    font-weight: normal; /* Chữ không cần in đậm */
-    cursor: pointer; /* Biến chữ thành có thể click */
-}
-
-.permission-item input[type="checkbox"] {
-    width: 18px; /* Làm checkbox to hơn */
-    height: 18px; /* Làm checkbox to hơn */
-    cursor: pointer;
-}
+/* --- ĐÃ SỬA: Xóa bỏ khối trùng lặp "NÂNG CẤP GIAO DIỆN..." --- */
 
 /* === GIAO DIỆN PHÂN QUYỀN (PHIÊN BẢN HOÀN CHỈNH) === */
 
@@ -489,7 +482,7 @@ table tbody tr:hover {
 .permission-group-title {
     margin: 0 0 15px 0;
     font-size: 16px;
-    border-bottom: 2px solid #FF9900;
+    border-bottom: 2px solid #ff9900;
     padding-bottom: 10px;
 }
 .permission-group-title label {
@@ -550,7 +543,8 @@ table tbody tr:hover {
     width: 18px;
     height: 18px;
 }
-/* === MÀU SẮC CHO CÁC THẺ VAI TRÒ === */
+
+/* === MÀU SẮC CHO CÁC THẺ VAI TRÒ (ĐÃ TÁCH BIỆT) === */
 
 /* Màu mặc định */
 .role-tag {
@@ -603,3 +597,4 @@ table tbody tr:hover {
     background-color: #6f42c1; /* Màu tím */
     border-color: #6f42c1;
 }
+

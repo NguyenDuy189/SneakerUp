@@ -54,3 +54,25 @@
     </form>
 </div>
 @endsection
+@push('scripts')
+<script>
+    // Dán script checkbox vào đây
+    if (document.getElementById('checkAll')) {
+        const checkAll = document.getElementById('checkAll');
+        const groupCheckboxes = document.querySelectorAll('.group-checkbox');
+        const permissionCheckboxes = document.querySelectorAll('.permission-checkbox');
+
+        checkAll.addEventListener('click', function() {
+            permissionCheckboxes.forEach(checkbox => { checkbox.checked = this.checked; });
+            groupCheckboxes.forEach(checkbox => { checkbox.checked = this.checked; });
+        });
+
+        groupCheckboxes.forEach(groupCheckbox => {
+            groupCheckbox.addEventListener('click', function() {
+                const group = this.dataset.group;
+                document.querySelectorAll(`.group-${group}`).forEach(checkbox => { checkbox.checked = this.checked; });
+            });
+        });
+    }
+</script>
+@endpush

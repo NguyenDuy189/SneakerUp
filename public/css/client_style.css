@@ -1,0 +1,563 @@
+/* * Đây là file CSS CƠ BẢN.
+* Nhóm của bạn sẽ cần thêm rất nhiều code CSS vào đây
+* để làm cho nó giống hệt bản thiết kế.
+*/
+
+
+body {
+    font-family: 'Figtree', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff; /* Đổi nền trắng giống thiết kế */
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+a {
+    text-decoration: none;
+    color: #002D62;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* =================================== */
+/* HEADER (THEO THIẾT KẾ) */
+/* =================================== */
+.client-header {
+    background-color: #002D62; /* Màu xanh Navy của thiết kế */
+    padding: 15px 0;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.client-header-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.client-header .logo {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: white;
+}
+
+.client-header .main-nav {
+    display: flex;
+    gap: 25px;
+}
+
+.client-header .main-nav a {
+    color: white;
+    font-weight: 500;
+    padding: 10px 0;
+    transition: opacity 0.3s ease;
+}
+
+.client-header .main-nav a:hover {
+    opacity: 0.8;
+}
+
+.client-header .user-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.client-header .search-bar {
+    display: flex;
+}
+
+.client-header .search-bar input {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px 0 0 4px;
+    font-size: 14px;
+}
+
+.client-header .search-bar button {
+    padding: 8px 12px;
+    border: none;
+    background-color: white;
+    color: #002D62;
+    cursor: pointer;
+    border-radius: 0 4px 4px 0;
+}
+
+.client-header .icon-btn {
+    font-size: 1.3em;
+    color: white;
+}
+
+/* =================================== */
+/* MAIN CONTENT (KHUNG CHỨA NỘI DUNG) */
+/* =================================== */
+.client-main-content {
+    padding: 50px 0;
+    flex-grow: 1; /* Đẩy footer xuống đáy */
+    background-color: #f9f9f9; /* Nền xám nhạt cho phần nội dung */
+}
+
+/* Style cho các trang /tai-khoan/... */
+.client-main-content h2 {
+    font-size: 2em;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* Style cho Form (VD: Thông Tin Tài Khoản) */
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+.form-group input[type="text"],
+.form-group input[type="email"] {
+    width: 100%;
+    max-width: 500px; /* Giới hạn độ rộng form */
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 15px;
+}
+button.btn, .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+}
+button.btn-primary, .btn-primary {
+    background-color: #002D62;
+    color: white;
+}
+button.btn-secondary, .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* Style cho Bảng (VD: Lịch Sử Đơn Hàng) */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.table thead {
+    background-color: #f1f1f1;
+}
+.table th, .table td {
+    padding: 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+.table td a.btn {
+    padding: 5px 10px;
+    font-size: 13px;
+    background-color: #007bff;
+    color: white;
+}
+
+/* =================================== */
+/* FOOTER (THEO THIẾT KẾ) */
+/* =================================== */
+.client-footer {
+    background-color: #002D62; /* Màu xanh Navy của thiết kế */
+    color: #ccc;
+    padding: 60px 0 30px 0;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer-column h4 {
+    color: white;
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+}
+.footer-column p {
+    font-size: 0.9em;
+    line-height: 1.6;
+}
+.footer-column ul li {
+    margin-bottom: 10px;
+}
+.footer-column ul a {
+    color: #ccc;
+    transition: color 0.3s ease;
+}
+.footer-column ul a:hover {
+    color: white;
+}
+
+.newsletter-form input {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+.newsletter-form button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    background-color: white;
+    color: #002D62;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.social-icons {
+    display: flex;
+    gap: 15px;
+}
+.social-icons a {
+    color: white;
+    font-size: 1.5em;
+}
+
+.footer-copyright {
+    text-align: center;
+    border-top: 1px solid #334;
+    padding-top: 30px;
+    color: #aaa;
+    font-size: 0.9em;
+}
+/* Khung sườn 2 cột */
+.account-container {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start; /* Cột align lên trên */
+}
+
+/* Cột 1: Sidebar Menu */
+.account-sidebar {
+    flex: 0 0 280px; /* Cố định chiều rộng 280px */
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    padding: 20px;
+}
+
+.account-sidebar-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.account-sidebar-nav li {
+    margin-bottom: 10px;
+}
+
+.account-sidebar-nav a {
+    display: block;
+    padding: 12px 15px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.account-sidebar-nav a i {
+    margin-right: 12px; /* Khoảng cách icon */
+    width: 20px; /* Giữ icon căn đều */
+    text-align: center;
+}
+
+.account-sidebar-nav a:hover {
+    background-color: #f4f4f4;
+}
+
+/* CSS cho link 'active' (trang hiện tại) */
+.account-sidebar-nav li.active a {
+    background-color: #002D62; /* Màu xanh chính */
+    color: white;
+}
+
+/* Nút Đăng xuất */
+.account-sidebar-nav form {
+    margin: 0;
+}
+.account-sidebar-nav form a {
+    color: #dc3545; /* Màu đỏ */
+}
+.account-sidebar-nav form a:hover {
+    background-color: #fceeee;
+}
+
+
+/* Cột 2: Nội dung chính */
+.account-content {
+    flex: 1; /* Chiếm hết phần còn lại */
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    padding: 30px;
+}
+/* =================================== */
+/* SỬA LỖI HIỂN THỊ NÚT ĐĂNG NHẬP */
+/* =================================== */
+
+.client-header .login-btn {
+    background-color: white; /* Cho nó cái nền trắng */
+    color: #002D62; /* Cho nó chữ màu xanh */
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    line-height: 1.2;
+}
+
+.client-header .login-btn:hover {
+    background-color: #f0f0f0;
+    color: #002D62;
+}
+/* =================================== */
+/* AUTH FORMS (ĐĂNG NHẬP / ĐĂNG KÝ) */
+/* =================================== */
+
+.auth-container {
+    max-width: 500px;
+    margin: 40px auto; /* Căn giữa form */
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+.auth-title {
+    text-align: center;
+    font-size: 1.8em;
+    font-weight: 600;
+    margin-bottom: 30px;
+    color: #002D62;
+}
+.auth-container .form-group {
+    margin-bottom: 20px;
+}
+.auth-container .form-group input[type="text"],
+.auth-container .form-group input[type="email"],
+.auth-container .form-group input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 15px;
+    /* Box-sizing để padding không làm vỡ layout */
+    box-sizing: border-box;
+}
+.form-group-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+}
+.remember-me {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+}
+.remember-me input[type="checkbox"] {
+    margin-right: 8px;
+}
+.forgot-password {
+    text-decoration: underline;
+}
+.auth-switch {
+    text-align: center;
+    margin-top: 20px;
+    color: #6c757d;
+}
+.auth-switch a {
+    font-weight: 500;
+}
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    list-style-position: inside;
+}
+/* =================================== */
+/* CSS CHỮA CHÁY CHO FORM BREEZE */
+/* =================================== */
+
+/* Container bọc 3 form */
+.breeze-forms-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px; /* Khoảng cách giữa các form */
+}
+
+/* Áp dụng padding/background cho các form-card mới
+   (Giống hệt .account-content)
+*/
+.form-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    padding: 30px;
+}
+
+/* STYLE BÊN TRONG CÁC FORM CỦA BREEZE
+*/
+
+/* Tiêu đề (VD: "Update Password") */
+.form-card header h2,
+.form-card h2 { /* Bắt cả h2 của partials */
+    font-size: 1.5em;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    border: none;
+    padding: 0;
+}
+
+/* Đoạn text mô tả */
+.form-card header p,
+.form-card p {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-top: 8px;
+    margin-bottom: 20px;
+}
+
+/* Form thật sự (bên trong partial) */
+.form-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Khoảng cách giữa các input/label */
+}
+
+/* Nhãn (Label) cho input */
+.form-card label {
+    display: block;
+    font-weight: 500;
+    font-size: 0.9em;
+    color: #333;
+}
+
+/* Ô nhập liệu (Input) */
+.form-card input[type="text"],
+.form-card input[type="email"],
+.form-card input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 15px;
+    box-sizing: border-box; /* Rất quan trọng */
+    margin-top: 5px; /* Khoảng cách với label */
+}
+
+/* Nút bấm (Button) */
+.form-card button {
+    /* Reset style của trình duyệt */
+    appearance: none;
+    -webkit-appearance: none;
+    font-family: 'Figtree', sans-serif;
+
+    /* Style của .btn */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+
+    /* Căn lề cho nút */
+    align-self: flex-start;
+    margin-top: 10px;
+}
+
+/* Nút chính (Lưu) */
+.form-card form button[type="submit"] {
+    background-color: #002D62; /* Màu xanh chính */
+    color: white;
+}
+
+/* Nút Xóa (Màu đỏ) */
+.form-card .btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* CSS cho thông báo "Saved." */
+.form-card .text-sm {
+    font-size: 0.9em;
+    color: #198754; /* Màu xanh lá */
+    font-weight: 500;
+}
+/* =================================== */
+/* LÀM ĐẸP THÔNG BÁO "ĐÃ LƯU." */
+/* =================================== */
+
+/* Class .text-sm này được dùng cho cả 2 thông báo:
+   1. "Đã lưu." (khi cập nhật thông tin)
+   2. "Đã lưu." (khi đổi mật khẩu)
+*/
+.form-card .text-sm {
+    font-size: 0.9em;
+    font-weight: 500;
+    color: #0f5132; /* Màu xanh lá đậm */
+    background-color: #d1e7dd; /* Màu xanh lá nhạt */
+    border: 1px solid #badbcc;
+    padding: 10px 15px;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+/* CSS cho thông báo "Chưa xác thực" */
+.email-verification-warning {
+    font-size: 0.9em;
+    background-color: #fff3cd;
+    border: 1px solid #ffe69c;
+    color: #664d03;
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+.email-verification-warning .btn-link {
+    border: none;
+    background: none;
+    padding: 0;
+    font-size: 1em;
+    color: #002D62;
+    text-decoration: underline;
+    cursor: pointer;
+}

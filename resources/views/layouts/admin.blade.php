@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Trang Quản Trị') - SneakerUp</title>
-    <link rel="stylesheet" href="{{ asset('css/admin_style.css') }}">
+
+    <link rel="stylesheet" href="{{ asset('css/admin_style.css?v=5') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
 <body>
@@ -30,7 +31,6 @@
                     </button>
                     <div class="nav-submenu">
                         @can('user-list')
-                            {{-- SỬA LỖI LOGIC NẰM Ở ĐÂY: Xóa bỏ điều kiện thừa --}}
                             <a href="{{ route('admin.users.index') }}" class="nav-item nav-submenu-item {{ Request::is('admin/users*') ? 'active' : '' }}">Tất cả tài khoản</a>
                             <a href="{{ route('admin.staff.index') }}" class="nav-item nav-submenu-item {{ Request::is('admin/staff*') ? 'active' : '' }}">Nhân viên</a>
                             <a href="{{ route('admin.customers.index') }}" class="nav-item nav-submenu-item {{ Request::is('admin/customers*') ? 'active' : '' }}">Khách hàng</a>
@@ -43,7 +43,36 @@
                 @endif
 
                 <a href="#" class="nav-item">📞 Quản Lý Liên Hệ</a>
-            </nav>
+
+                @if(auth()->user()->can('post-list') || auth()->user()->can('post-category-list'))
+                <div class="nav-group {{ (request()->routeIs('admin.posts.*') || request()->routeIs('admin.post-categories.*')) ? 'open active' : '' }}">
+                    <button class="nav-group-title-button">
+                        <span>📰 Quản lý Bài viết</span> <i class="fas fa-chevron-down arrow-icon"></i>
+                    </button>
+                    <div class="nav-submenu">
+                        @can('post-list')
+                            <a href="{{ route('admin.posts.index') }}"
+                               class="nav-item nav-submenu-item {{ request()->routeIs('admin.posts.*') ? 'active' : '' }}">
+                               Danh sách bài viết
+                            </a>
+                        @endcan
+                        @can('post-category-list')
+                            <a href="{{ route('admin.post-categories.index') }}"
+                               class="nav-item nav-submenu-item {{ request()->routeIs('admin.post-categories.*') ? 'active' : '' }}">
+                               Danh mục bài viết
+                            </a>
+                        @endcan
+                    </div>
+                </div>
+                @endif
+
+                @can('review-list')
+                <a href="{{ route('admin.reviews.index') }}"
+                   class="nav-item {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
+                    ⭐ Quản lý đánh giá </a>
+                @endcan
+
+                </nav>
         </aside>
 
         <main class="main-content">
@@ -85,6 +114,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Chỉ giữ lại script của Accordion Menu
             var groupTitles = document.querySelectorAll('.nav-group-title-button');
             groupTitles.forEach(function (title) {
                 title.addEventListener('click', function () {
@@ -92,22 +122,10 @@
                     parentGroup.classList.toggle('open');
                 });
             });
-            if (document.getElementById('checkAll')) {
-                const checkAll = document.getElementById('checkAll');
-                const groupCheckboxes = document.querySelectorAll('.group-checkbox');
-                const permissionCheckboxes = document.querySelectorAll('.permission-checkbox');
-                checkAll.addEventListener('click', function() {
-                    permissionCheckboxes.forEach(checkbox => { checkbox.checked = this.checked; });
-                    groupCheckboxes.forEach(checkbox => { checkbox.checked = this.checked; });
-                });
-                groupCheckboxes.forEach(groupCheckbox => {
-                    groupCheckbox.addEventListener('click', function() {
-                        const group = this.dataset.group;
-                        document.querySelectorAll(`.group-${group}`).forEach(checkbox => { checkbox.checked = this.checked; });
-                    });
-                });
-            }
         });
     </script>
+
+    @stack('scripts')
+
 </body>
 </html>
